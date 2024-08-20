@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-API test</title>
+    <style>
+        /* Container for the two columns */
+        .container {
+            margin-top: 100px;
+            margin-left: 100px;
+            display: flex;
+        }
+
+        /* Left column for inputs */
+        .left-column {
+            width: 25%;
+        }
+
+        /* Right column for the response */
+        .right-column {
+            width: 45%;
+            padding-left: 20px;
+            border-left: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left column with inputs -->
+        <div class="left-column">
+            <label for="apiUrl">Enter API URL:</label>
+            <input type="text" id="apiUrl" name="apiUrl" required><br><br>
+
+            <label for="idInstance">Enter instance ID:</label>
+            <input type="text" id="idInstance" name="idInstance" required><br><br>
+
+            <label for="apiTokenInstance">Enter API token instance:</label>
+            <input type="text" id="apiTokenInstance" name="apiTokenInstance" required><br><br>
+            
+            <button onclick="setGetSettings()">Get Settings</button>
+            <br>
+            <br>
+            <button onclick="setGetStateSettings()">Get Settings</button>
+            <br>
+            <br>
+            <br>
+            <br>
+            <label for="phoneNumber">Enter phone number:</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required><br><br>
+
+            <label for="message">Enter message:</label>
+            <input type="text" id="message" name="message" required><br><br>
+            <button onclick="sendMessage()">Send Message</button>
+            <br>
+            <br>
+            <br>
+            <br>
+            <label for="filePhoneNumber">Enter phone number:</label>
+            <input type="text" id="filePhoneNumber" name="filePhoneNumber" required><br><br>
+
+            <label for="fileUrl">Enter file url:</label>
+            <input type="text" id="fileUrl" name="fileUrl" required><br><br>
+            <button onclick="sendFile()">Send File By URL</button>
+        </div>
+
+        <div class="right-column" id="responseContainer">
+        </div>
+    </div>
+
+    <script>
+        async function setGetSettings() {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            
+            // Construct the full API URL
+            const fullUrl = `${apiUrl}/waInstance${idInstance}/getSettings/${apiTokenInstance}`;
+
+            try {
+                // Fetch the API response
+                const response = await fetch(fullUrl);
+                const responseBody = await response.json();
+
+                // Display the response in the responseContainer div
+                document.getElementById('responseContainer').innerText = JSON.stringify(responseBody, null, 2);
+            } catch (error) {
+                // Handle errors, such as network issues
+                document.getElementById('responseContainer').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function setGetStateSettings() {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            
+            // Construct the full API URL
+            const fullUrl = `${apiUrl}/waInstance${idInstance}/getStateSettings/${apiTokenInstance}`;
+
+            try {
+                // Fetch the API response
+                const response = await fetch(fullUrl);
+                const responseBody = await response.json();
+
+                // Display the response in the responseContainer div
+                document.getElementById('responseContainer').innerText = JSON.stringify(responseBody, null, 2);
+            } catch (error) {
+                // Handle errors, such as network issues
+                document.getElementById('responseContainer').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function sendMessage() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const message = document.getElementById('message').value;
+            
+            const data = {
+                chatId: phoneNumber + "@c.us",
+                message: message
+            };
+
+            // Construct the full API URL
+            const fullUrl = `${apiUrl}/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
+            
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Specify the content type as JSON
+                },
+                body: JSON.stringify(data)
+            };
+
+            try {
+                // Fetch the API response
+                const response = await fetch(fullUrl, options);
+                const responseBody = await response.json();
+
+                // Display the response in the responseContainer div
+                document.getElementById('responseContainer').innerText = JSON.stringify(responseBody, null, 2);
+            } catch (error) {
+                // Handle errors, such as network issues
+                document.getElementById('responseContainer').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        async function sendFile() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            const phoneNumber = document.getElementById('filePhoneNumber').value;
+            const fileUrl = document.getElementById('fileUrl').value;
+            const fileName = getFileNameFromUrl(fileUrl);
+            const data = {
+                chatId: phoneNumber + "@c.us",
+                urlFile: fileUrl,
+                fileName: fileName
+            };
+
+            // Construct the full API URL
+            const fullUrl = `${apiUrl}/waInstance${idInstance}/sendFileByUrl/${apiTokenInstance}`;
+            
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Specify the content type as JSON
+                },
+                body: JSON.stringify(data)
+            };
+
+            try {
+                // Fetch the API response
+                const response = await fetch(fullUrl, options);
+                const responseBody = await response.json();
+
+                // Display the response in the responseContainer div
+                document.getElementById('responseContainer').innerText = JSON.stringify(responseBody, null, 2);
+            } catch (error) {
+                // Handle errors, such as network issues
+                document.getElementById('responseContainer').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        function getFileNameFromUrl(url) {
+          // Create a URL object
+        const urlObj = new URL(url);
+  
+         // Extract pathname from the URL and get the last segment
+        const pathname = urlObj.pathname;
+        const fileName = pathname.substring(pathname.lastIndexOf('/') + 1);
+  
+        return fileName;
+        }
+    </script>
+</body>
+</html>
